@@ -1,5 +1,5 @@
 # Usar a imagem base do Maven com JDK 21 para construir o projeto
-FROM maven:3.9.0-eclipse-temurin-21 AS build
+FROM maven:3.9.0-openjdk-21 AS build
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
@@ -17,16 +17,20 @@ RUN mvn dependency:go-offline
 RUN mvn clean package
 
 # Usar a imagem base do JDK 21 para rodar a aplicação
-FROM eclipse-temurin:21-jdk
+FROM openjdk:21-jdk
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
 
 # Copiar o JAR gerado da imagem anterior
-COPY --from=build /app/target/app-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/convertion-0.0.1-SNAPSHOT.jar app.jar
 
 # Expor a porta 8080
 EXPOSE 8080
+
+# Comando para rodar a aplicação
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
 # Comando para rodar a aplicação
 ENTRYPOINT ["java", "-jar", "app.jar"]
