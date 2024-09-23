@@ -1,5 +1,5 @@
 # Use uma imagem base do OpenJDK 11
-FROM openjdk:11-jdk-alpine
+FROM adoptopenjdk/openjdk11:jre-alpine
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
@@ -17,7 +17,6 @@ RUN mvn package
 # Expor a imagem final
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","target/app.jar"]
-
 
 
 
