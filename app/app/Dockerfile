@@ -1,17 +1,22 @@
-# Usar a imagem base do OpenJDK 21
-FROM openjdk:21-jdk-slim
+# Use uma imagem base do OpenJDK 11
+FROM openjdk:11-jdk-alpine
 
-# Definir o diretório de trabalho
+# Definir o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copiar o arquivo JAR da sua aplicação para o contêiner
-COPY target/seu-aplicativo.jar app.jar
+# Copiar o pom.xml e o código fonte
+COPY pom.xml ./
+COPY src ./src
 
-# Expor a porta que sua aplicação irá usar
+# Instalar dependências
+RUN apt-get update && apt-get install -y maven
+
+# Construir a aplicação
+RUN mvn package
+
+# Expor a imagem final
 EXPOSE 8080
-
-# Comando para executar a aplicação
-CMD ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","target/app.jar"]
 
 
 
