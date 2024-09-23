@@ -1,5 +1,5 @@
-# Usar a imagem base do Maven com JDK 21 para construir o projeto
-FROM maven:3.9.0-openjdk-21 AS build
+# Usar a imagem base do Maven com JDK 17 para construir o projeto
+FROM maven:3.9.0-eclipse-temurin AS build
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN mvn dependency:go-offline
 RUN mvn clean package
 
 # Usar a imagem base do JDK 21 para rodar a aplicação
-FROM openjdk:21-jdk
+FROM openjdk:21-jdk-slim
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
@@ -31,9 +31,6 @@ EXPOSE 8080
 # Comando para rodar a aplicação
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
-
-# Comando para rodar a aplicação
-ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
 
