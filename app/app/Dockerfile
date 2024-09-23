@@ -1,32 +1,36 @@
-version: "3.9"
+# Usar a imagem base do Maven com JDK 21 para construir o projeto
+FROM maven:3.9.0-eclipse-temurin-21 AS build
 
-services:
-  pgadmin4:
-    image: dpage/pgadmin4
-    container_name: pgadmin4_container
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "89:80"
-    networks:
-      - postgres-network
+# Definir o diretório de trabalho dentro do container
+WORKDIR /app
 
-  postgres:  #
-    image: postgres:10
-    container_name: postgres_container
-    environment:
-      POSTGRES_PASSWORD: 1234  # Senha do banco de dados PostgreSQL
-    ports:
-      - "5432:5432"  # Mapeando porta 5432 do container para 5432 no host
-    volumes:
-      - /home/seu_usuario/data/postgres:/var/lib/postgresql/data  # Volume para persistência de dados
-    networks:
-      - postgres-network
+# Copiar o arquivo pom.xml para baixar as dependências
+COPY pom.xml .
 
-networks:
-  postgres-network:
-    driver: bridge
+# Copiar o restante dos arquivos do projeto para dentro do container
+COPY src ./src
+
+# Baixar as dependências do Maven
+RUN mvn dependency:go-offline
+
+# Construir o projeto, gerando o arquivo JAR
+RUN mvn clean package
+
+# Usar a imagem base do JDK 21 para rodar a aplicação
+FROM eclipse-temurin:21-jdk
+
+# Definir o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Copiar o JAR gerado da imagem anterior
+COPY --from=build /app/target/app-0.0.1-SNAPSHOT.jar app.jar
+
+# Expor a porta 8080
+EXPOSE 8080
+
+# Comando para rodar a aplicação
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
 
 
